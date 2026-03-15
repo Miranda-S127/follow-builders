@@ -138,7 +138,7 @@ async function saveState(state) {
 //   GET /v1/youtube/transcript?url=<full youtube URL>&text=true — returns { content, lang, availableLangs }
 //   GET /v1/youtube/video?id=<videoId>                     — returns video metadata (title, etc.)
 
-async function fetchYouTubeContent(podcasts, state, apiKey, isFirstRun, errors) {
+async function fetchYouTubeContent(podcasts, state, apiKey, isFirstRun, errors, lookbackHours) {
   const results = [];
 
   for (const podcast of podcasts) {
@@ -176,7 +176,14 @@ async function fetchYouTubeContent(podcasts, state, apiKey, isFirstRun, errors) 
       const limit = isFirstRun ? 2 : 3;
       const videosToProcess = newVideoIds.slice(0, limit);
 
-      // Step 4: For each new video, get metadata (title) and transcript
+      // Step 4: For each new video, get metadata first to check publish date,
+      // then fetch transcript only if it's recent enough.
+      // On first run, only include videos from the last 48 hours so users
+      // don't get overwhelmed with 15+ episodes on day one.
+      const maxAgeHours = isFirstRun ? 48 : lookbackHours;
+      const videoCutoff = new Date(Date.now() - maxAgeHours * 60 * 60 * 1000);
+      let episodesAdded = 0;
+
       for (const videoId of videosToProcess) {
         try {
           // Get video metadata (title, author, publish date)
@@ -189,8 +196,21 @@ async function fetchYouTubeContent(podcasts, state, apiKey, isFirstRun, errors) 
           if (metaRes.ok) {
             const metaData = await metaRes.json();
             title = metaData.title || 'Untitled';
-            publishedAt = metaData.publishedAt || metaData.date || null;
+            publishedAt = metaData.uploadDate || metaData.publishedAt || metaData.date || null;
           }
+
+          // Skip videos that are too old
+          if (publishedAt) {
+            const pubDate = new Date(publishedAt);
+            if (pubDate < videoCutoff) {
+              // Mark as processed so we don't check it again next run
+              state.processedVideos[videoId] = Date.now();
+              continue;
+            }
+          }
+
+          // On first run, cap at 1 episode per channel
+          if (isFirstRun && episodesAdded >= 1) break;
 
           // Get the transcript as plain text
           // Supadata needs a full YouTube URL, not just the video ID
@@ -217,6 +237,8 @@ async function fetchYouTubeContent(podcasts, state, apiKey, isFirstRun, errors) 
             transcript: transcriptData.content || '',
             language: transcriptData.lang || 'en'
           });
+
+          episodesAdded++;
 
           // Mark as processed
           state.processedVideos[videoId] = Date.now();
@@ -398,7 +420,7 @@ async function main() {
     // Note: we run these sequentially rather than in parallel to avoid
     // state mutation issues — both functions write to the same state object
     const podcastContent = await fetchYouTubeContent(
-      config.podcasts, state, supadataKey, isFirstRun, errors
+      config.podcasts, state, supadataKey, isFirstRun, errors, lookbackHours
     );
     const xContent = await fetchXContent(
       config.xAccounts, state, lookbackHours, isFirstRun, errors
