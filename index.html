@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Builders Digest</title>
+<meta name="description" content="Daily digest tracking top AI builders — researchers, founders, PMs and engineers who are actually building things.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --surface-alt: #f5f5f4;
+  --border: #e7e5e4;
+  --border-light: #f0efee;
+  --text-1: #0f0f0f;
+  --text-2: #44403c;
+  --text-3: #a8a29e;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-subtle: #eef2ff;
+  --red: #ef4444;
+  --green: #22c55e;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.03);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.06), 0 2px 4px rgba(0,0,0,.03);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.08), 0 4px 8px rgba(0,0,0,.04);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c0a09;
+    --surface: #1c1917;
+    --surface-alt: #211f1d;
+    --border: #2e2b28;
+    --border-light: #252320;
+    --text-1: #fafaf9;
+    --text-2: #a8a29e;
+    --text-3: #57534e;
+    --accent: #818cf8;
+    --accent-hover: #a5b4fc;
+    --accent-subtle: rgba(99,102,241,.12);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.2);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.3);
+    --shadow-lg: 0 12px 32px rgba(0,0,0,.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-1);
+  line-height: 1.6;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a { color: var(--accent); text-decoration: none; transition: color 150ms; }
+a:hover { color: var(--accent-hover); }
+
+.container { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { color: var(--text-3); font-size: 14px; }
+
+/* Error */
+.error-state {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--text-3);
+}
+.error-state h2 { color: var(--text-1); margin-bottom: 8px; }
+
+/* Hero */
+.hero {
+  padding: 64px 0 40px;
+  text-align: center;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.hero h1 {
+  font-size: 40px;
+  font-weight: 780;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  margin-bottom: 6px;
+}
+.hero .subtitle {
+  font-size: 16px;
+  color: var(--text-3);
+  font-weight: 400;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.hero .date {
+  font-size: 14px;
+  color: var(--text-3);
+  margin-top: 16px;
+  font-feature-settings: 'tnum';
+}
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 24px;
+}
+.stat { text-align: center; }
+.stat-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-1);
+  font-feature-settings: 'tnum';
+  letter-spacing: -0.02em;
+}
+.stat-label { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+
+/* Sticky Nav */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+}
+.nav-inner {
+  display: flex;
+  gap: 4px;
+  padding: 8px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-inner::-webkit-scrollbar { display: none; }
+.nav-link {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--text-3);
+  white-space: nowrap;
+  transition: all 150ms;
+  cursor: pointer;
+}
+.nav-link:hover, .nav-link.active { background: var(--surface-alt); color: var(--text-1); }
+
+/* Sections */
+.section { padding: 40px 0 16px; }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+.section-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.section-icon.x { background: #0f141a; color: #fff; }
+.section-icon.podcast { background: #dcfce7; color: #16a34a; }
+.section-icon.blog { background: #fef3c7; color: #d97706; }
+.section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.025em; }
+.section-count { font-size: 12px; color: var(--text-3); margin-left: auto; white-space: nowrap; }
+
+/* Builder Card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: box-shadow 200ms ease, transform 200ms ease;
+}
+.card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 20px 0;
+}
+.avatar {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.card-name { font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
+.card-role { font-size: 12px; color: var(--text-3); line-height: 1.3; }
+.card-body { padding: 12px 20px 16px; }
+
+/* Tweet */
+.tweet {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.tweet:last-child { border-bottom: none; }
+.tweet-text {
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.tweet-text a { color: var(--accent); }
+.tweet-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-3);
+  font-feature-settings: 'tnum';
+}
+.tweet-meta a { color: var(--text-3); }
+.tweet-meta a:hover { color: var(--accent); }
+.tweet-stat { display: inline-flex; align-items: center; gap: 3px; }
+
+/* Podcast Card */
+.podcast-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 12px;
+  transition: box-shadow 200ms, transform 200ms;
+}
+.podcast-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.podcast-source { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: .02em; text-transform: uppercase; margin-bottom: 6px; }
+.podcast-title { font-size: 17px; font-weight: 650; letter-spacing: -0.015em; margin-bottom: 4px; line-height: 1.3; }
+.podcast-meta { font-size: 12px; color: var(--text-3); margin-bottom: 14px; }
+.podcast-excerpt {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.65;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.watch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 550;
+  margin-top: 14px;
+  transition: all 150ms;
+}
+.watch-btn:hover { background: var(--accent-hover); color: #fff; transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+/* Blog Card */
+.blog-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  transition: box-shadow 200ms, transform 200ms;
+}
+.blog-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.blog-source { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .02em; margin-bottom: 4px; }
+.blog-title { font-size: 16px; font-weight: 650; letter-spacing: -0.01em; margin-bottom: 6px; }
+.blog-excerpt { font-size: 14px; color: var(--text-2); line-height: 1.6; }
+
+/* Empty */
+.empty-state {
+  text-align: center;
+  padding: 40px 24px;
+  color: var(--text-3);
+  font-size: 14px;
+}
+
+/* Footer */
+.footer {
+  padding: 40px 0 64px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-3);
+  line-height: 1.6;
+}
+.footer a { color: var(--text-3); }
+.footer a:hover { color: var(--accent); }
+.footer p + p { margin-top: 4px; }
+
+/* Animations */
+.fade-up {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeUp 350ms ease-out forwards;
+}
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 640px) {
+  .hero { padding: 48px 0 32px; }
+  .hero h1 { font-size: 30px; }
+  .stats-row { gap: 20px; }
+  .stat-num { font-size: 18px; }
+  .container { padding: 0 16px; }
+  .card-head { padding: 16px 16px 0; }
+  .card-body { padding: 10px 16px 14px; }
+  .podcast-card { padding: 18px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Fetching the latest from AI builders...</div>
+  </div>
+</div>
+
+<script>
+const FEED_BASE = 'https://raw.githubusercontent.com/zarazhangrui/follow-builders/main';
+const FEEDS = {
+  x: `${FEED_BASE}/feed-x.json`,
+  podcasts: `${FEED_BASE}/feed-podcasts.json`,
+  blogs: `${FEED_BASE}/feed-blogs.json`,
+};
+
+const COLORS = [
+  { bg: '#eef2ff', fg: '#4f46e5' },
+  { bg: '#fce7f3', fg: '#be185d' },
+  { bg: '#fef3c7', fg: '#b45309' },
+  { bg: '#dcfce7', fg: '#15803d' },
+  { bg: '#e0f2fe', fg: '#0369a1' },
+  { bg: '#faf5ff', fg: '#7e22ce' },
+  { bg: '#fff1f2', fg: '#be123c' },
+  { bg: '#f0fdf4', fg: '#166534' },
+  { bg: '#fef9c3', fg: '#a16207' },
+  { bg: '#dbeafe', fg: '#1d4ed8' },
+];
+
+function getColor(i) { return COLORS[i % COLORS.length]; }
+
+function formatNum(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+  return String(n);
+}
+
+function formatDate(str) {
+  const d = new Date(str);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function timeAgo(str) {
+  const diff = Date.now() - new Date(str).getTime();
+  const h = Math.floor(diff / 3600000);
+  if (h < 1) return `${Math.floor(diff / 60000)}m`;
+  if (h < 24) return `${h}h`;
+  return `${Math.floor(h / 24)}d`;
+}
+
+function escapeHtml(text) {
+  const el = document.createElement('div');
+  el.textContent = text;
+  return el.innerHTML;
+}
+
+function linkifyTweet(text) {
+  let html = escapeHtml(text);
+  html = html.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  html = html.replace(/(?<!\w)@(\w+)/g, '<a href="https://x.com/$1" target="_blank" rel="noopener">@$1</a>');
+  return html;
+}
+
+function extractFirstSentences(transcript, n = 3) {
+  if (!transcript) return '';
+  const clean = transcript.replace(/\[.*?\]/g, '').replace(/>> /g, '').replace(/\s+/g, ' ').trim();
+  const sentences = clean.match(/[^.!?]+[.!?]+/g);
+  if (!sentences) return clean.slice(0, 300) + '...';
+  return sentences.slice(0, n).join(' ').trim();
+}
+
+async function fetchFeeds() {
+  const [xRes, podRes, blogRes] = await Promise.all([
+    fetch(FEEDS.x).then(r => r.json()).catch(() => ({ x: [] })),
+    fetch(FEEDS.podcasts).then(r => r.json()).catch(() => ({ podcasts: [] })),
+    fetch(FEEDS.blogs).then(r => r.json()).catch(() => ({ blogs: [] })),
+  ]);
+  return {
+    x: xRes.x || [],
+    podcasts: podRes.podcasts || [],
+    blogs: blogRes.blogs || [],
+    generatedAt: xRes.generatedAt || podRes.generatedAt || new Date().toISOString(),
+  };
+}
+
+function renderTweet(tweet) {
+  const isJustLink = /^https?:\/\/\S+\s*$/.test(tweet.text.trim()) ||
+                     /^https?:\/\/\S+\s+https?:\/\/\S+\s*$/.test(tweet.text.trim());
+  if (isJustLink) return '';
+
+  return `
+    <div class="tweet">
+      <div class="tweet-text">${linkifyTweet(tweet.text)}</div>
+      <div class="tweet-meta">
+        <span class="tweet-stat">❤️ ${formatNum(tweet.likes)}</span>
+        <span class="tweet-stat">🔁 ${formatNum(tweet.retweets)}</span>
+        <span class="tweet-stat">💬 ${formatNum(tweet.replies)}</span>
+        <span>· ${timeAgo(tweet.createdAt)}</span>
+        <a href="${tweet.url}" target="_blank" rel="noopener" style="margin-left:auto;">View →</a>
+      </div>
+    </div>
+  `;
+}
+
+function renderBuilderCard(builder, index) {
+  const c = getColor(index);
+  const initial = builder.name.charAt(0).toUpperCase();
+  const bio = (builder.bio || '').replace(/@\w+/g, m => m.slice(1)).split('\n')[0].slice(0, 100);
+  const totalLikes = builder.tweets.reduce((sum, t) => sum + (t.likes || 0), 0);
+
+  const tweetsHtml = builder.tweets
+    .sort((a, b) => b.likes - a.likes)
+    .map(t => renderTweet(t))
+    .filter(Boolean)
+    .join('');
+
+  if (!tweetsHtml) return '';
+
+  return `
+    <article class="card fade-up" style="animation-delay:${Math.min(index * 40, 400)}ms">
+      <div class="card-head">
+        <div class="avatar" style="background:${c.bg};color:${c.fg};">${initial}</div>
+        <div>
+          <div class="card-name">${escapeHtml(builder.name)}</div>
+          <div class="card-role">${escapeHtml(bio)}</div>
+        </div>
+      </div>
+      <div class="card-body">${tweetsHtml}</div>
+    </article>
+  `;
+}
+
+function renderPodcastCard(ep) {
+  const excerpt = extractFirstSentences(ep.transcript, 4);
+  return `
+    <article class="podcast-card fade-up">
+      <div class="podcast-source">${escapeHtml(ep.name)}</div>
+      <div class="podcast-title">${escapeHtml(ep.title)}</div>
+      <div class="podcast-meta">${formatDate(ep.publishedAt)}</div>
+      ${excerpt ? `<div class="podcast-excerpt">${escapeHtml(excerpt)}</div>` : ''}
+      <a class="watch-btn" href="${ep.url}" target="_blank" rel="noopener">▶ Watch on YouTube</a>
+    </article>
+  `;
+}
+
+function renderBlogCard(post) {
+  return `
+    <article class="blog-card fade-up">
+      <div class="blog-source">${escapeHtml(post.blogName || post.name || 'Blog')}</div>
+      <div class="blog-title"><a href="${post.url || '#'}" target="_blank" rel="noopener">${escapeHtml(post.title || 'Untitled')}</a></div>
+      ${post.excerpt ? `<div class="blog-excerpt">${escapeHtml(post.excerpt)}</div>` : ''}
+    </article>
+  `;
+}
+
+function render(data) {
+  const { x, podcasts, blogs, generatedAt } = data;
+
+  const builders = x
+    .filter(b => b.tweets && b.tweets.length > 0)
+    .sort((a, b) => {
+      const aMax = Math.max(...a.tweets.map(t => t.likes || 0));
+      const bMax = Math.max(...b.tweets.map(t => t.likes || 0));
+      return bMax - aMax;
+    });
+
+  const totalTweets = builders.reduce((s, b) => s + b.tweets.length, 0);
+  const dateStr = formatDate(generatedAt);
+
+  const hasX = builders.length > 0;
+  const hasPodcasts = podcasts.length > 0;
+  const hasBlogs = blogs.length > 0;
+
+  let navHtml = '';
+  if (hasX) navHtml += '<a class="nav-link active" href="#x">𝕏 Twitter</a>';
+  if (hasPodcasts) navHtml += '<a class="nav-link" href="#podcasts">🎙 Podcasts</a>';
+  if (hasBlogs) navHtml += '<a class="nav-link" href="#blogs">📝 Blogs</a>';
+
+  let sectionsHtml = '';
+
+  if (hasX) {
+    sectionsHtml += `
+      <section class="section" id="x">
+        <div class="section-header">
+          <div class="section-icon x">𝕏</div>
+          <h2 class="section-title">X / Twitter</h2>
+          <span class="section-count">${builders.length} builders · ${totalTweets} tweets</span>
+        </div>
+        ${builders.map((b, i) => renderBuilderCard(b, i)).filter(Boolean).join('')}
+      </section>
+    `;
+  }
+
+  if (hasPodcasts) {
+    sectionsHtml += `
+      <section class="section" id="podcasts">
+        <div class="section-header">
+          <div class="section-icon podcast">🎙</div>
+          <h2 class="section-title">Podcasts</h2>
+          <span class="section-count">${podcasts.length} episode${podcasts.length > 1 ? 's' : ''}</span>
+        </div>
+        ${podcasts.map(renderPodcastCard).join('')}
+      </section>
+    `;
+  }
+
+  if (hasBlogs) {
+    sectionsHtml += `
+      <section class="section" id="blogs">
+        <div class="section-header">
+          <div class="section-icon blog">📝</div>
+          <h2 class="section-title">Official Blogs</h2>
+          <span class="section-count">${blogs.length} post${blogs.length > 1 ? 's' : ''}</span>
+        </div>
+        ${blogs.map(renderBlogCard).join('')}
+      </section>
+    `;
+  }
+
+  if (!hasX && !hasPodcasts && !hasBlogs) {
+    sectionsHtml = '<div class="empty-state"><p>No new content today. Check back tomorrow!</p><p>今天没有新内容，明天再来看看吧！</p></div>';
+  }
+
+  document.getElementById('app').innerHTML = `
+    <header class="hero">
+      <div class="container">
+        <div class="hero-badge">📡 Daily Digest</div>
+        <h1>AI Builders Digest</h1>
+        <p class="subtitle">Follow builders with original opinions, not influencers who regurgitate.</p>
+        <p class="date">Feed updated ${dateStr}</p>
+        <div class="stats-row">
+          ${hasX ? `<div class="stat"><div class="stat-num">${builders.length}</div><div class="stat-label">builders</div></div>` : ''}
+          ${hasX ? `<div class="stat"><div class="stat-num">${totalTweets}</div><div class="stat-label">tweets</div></div>` : ''}
+          ${hasPodcasts ? `<div class="stat"><div class="stat-num">${podcasts.length}</div><div class="stat-label">podcast${podcasts.length > 1 ? 's' : ''}</div></div>` : ''}
+          ${hasBlogs ? `<div class="stat"><div class="stat-num">${blogs.length}</div><div class="stat-label">blog post${blogs.length > 1 ? 's' : ''}</div></div>` : ''}
+        </div>
+      </div>
+    </header>
+
+    <nav class="nav">
+      <div class="container">
+        <div class="nav-inner">${navHtml}</div>
+      </div>
+    </nav>
+
+    <main class="container">
+      ${sectionsHtml}
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>Generated through the <a href="https://github.com/zarazhangrui/follow-builders" target="_blank">Follow Builders</a> skill</p>
+        <p>Feeds updated daily · Content refreshes on every visit</p>
+      </div>
+    </footer>
+  `;
+}
+
+function showError(err) {
+  document.getElementById('app').innerHTML = `
+    <div class="error-state">
+      <h2>Failed to load feeds</h2>
+      <p>${escapeHtml(err.message)}</p>
+      <p style="margin-top:12px"><a href="javascript:location.reload()">Try again</a></p>
+    </div>
+  `;
+}
+
+fetchFeeds().then(render).catch(showError);
+</script>
+</body>
+</html>
